@@ -1,2 +1,3 @@
 # learning_deeplearning
- train_projects
+ 深度学习学习笔记
+by Ke Xing
