@@ -22,14 +22,14 @@ data_test=torchvision.datasets.FashionMNIST(
 
 train_iter=data.DataLoader(
     data_train,
-    batch_size=32,
+    batch_size=256,
     shuffle=True,
 
 )
 
 test_iter=data.DataLoader(
     data_test,
-    batch_size=32,
+    batch_size=256,
     shuffle=False,
 
 )
@@ -39,23 +39,27 @@ model=torch.nn.Sequential(
     nn.Linear(784,10),
 
 )
-epochs=50
-lr=0.03
+epochs=10
+lr=0.1
 loss=nn.CrossEntropyLoss()
 optimizer=torch.optim.SGD(model.parameters(),lr=lr)
-
+a={}
 for epoch in range(epochs):
 
     model.train()
+    loss1=0
+    num_=0
     for x,y in train_iter:
         output=model(x)
         y=y.type(torch.long)
-
         l=loss(output,y)
+        loss1=loss1+l
+        num_=num_+1
         optimizer.zero_grad()
         l.backward()
         optimizer.step()
-
+    b=loss1.detach().numpy()
+    a[epoch]=b/num_
 
     model.eval()
     num=0
@@ -68,6 +72,11 @@ for epoch in range(epochs):
             right+=torch.sum(pred==y)
 
     print(f'epoch:{epoch} acc:{(right/num*100).item()}')
+
+plt.plot(a.keys(),a.values())
+plt.xlabel('epoch')
+plt.ylabel('loss')
+plt.show()
 
 
 
