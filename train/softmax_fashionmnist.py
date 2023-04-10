@@ -36,14 +36,19 @@ test_iter=data.DataLoader(
 
 model=torch.nn.Sequential(
     nn.Flatten(),
-    nn.Linear(784,10),
+    nn.Linear(784,256),
+    nn.ReLU(),
+    nn.Linear(256,10)
 
 )
+
 epochs=10
 lr=0.1
 loss=nn.CrossEntropyLoss()
 optimizer=torch.optim.SGD(model.parameters(),lr=lr)
+
 a={}
+c={}
 for epoch in range(epochs):
 
     model.train()
@@ -56,26 +61,36 @@ for epoch in range(epochs):
         loss1=loss1+l
         num_=num_+1
         optimizer.zero_grad()
+
         l.backward()
         optimizer.step()
+
     b=loss1.detach().numpy()
     a[epoch]=b/num_
 
     model.eval()
     num=0
+    num_1=0
     right=0
+    loss2=0
     with torch.no_grad():
         for x,y in test_iter:
             out=model(x)
+            num_1=num_1+1
+            l=loss(out,y)
+            loss2=loss2+l
             pred=torch.argmax(torch.softmax(out,dim=1),dim=1)
             num+=len(pred)
             right+=torch.sum(pred==y)
+        b=loss2.detach().numpy()
+        c[epoch]=b/num_1
 
     print(f'epoch:{epoch} acc:{(right/num*100).item()}')
 
-plt.plot(a.keys(),a.values())
+plt.plot(a.keys(),a.values(),'r',c.keys(),c.values(),'b')
 plt.xlabel('epoch')
 plt.ylabel('loss')
+plt.legend(labels=['train','test'])
 plt.show()
 
 
